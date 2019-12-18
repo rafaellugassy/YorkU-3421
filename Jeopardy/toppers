@@ -1,0 +1,67 @@
+with races (realm, race, gender, total) As
+(
+SELECT 	V.realm, A.race, A.gender, SUM(T.sql) as total
+FROM Avatar A, Visit V, Loot L, Treasure T, Quest Q
+WHERE V.login = A.login AND
+	L.login = V.login AND
+	V.day = L.day AND
+	V.realm = L.realm AND
+	T.treasure = L.treasure AND
+	Q.theme = L.theme AND 
+	Q.realm = L.realm AND
+	Q.day = L.day AND
+	A.gender = 'M' AND
+	A.name = V.name AND
+	Q.succeeded IS NOT NULL
+GROUP BY A.race, V.realm, A.gender
+)
+,
+races_i (realm, race, gender, total) As
+(
+SELECT 	V.realm, A.race, A.gender, SUM(T.sql) as total
+FROM Avatar A, Visit V, Loot L, Treasure T, Quest Q
+WHERE V.login = A.login AND
+	L.login = V.login AND
+	V.day = L.day AND
+	V.realm = L.realm AND
+	T.treasure = L.treasure AND
+	Q.theme = L.theme AND 
+	Q.realm = L.realm AND
+	Q.day = L.day AND
+	A.gender = 'F' AND
+	A.name = V.name AND
+	Q.succeeded IS NOT NULL
+GROUP BY A.race, V.realm, A.gender
+)
+,
+female_max(realm, total) as 
+(
+SELECT realm, MAX(total) as total
+FROM races_i
+GROUP BY realm
+)
+,
+male_max(realm, total) as 
+(
+SELECT realm, MAX(total) as total
+FROM races
+GROUP BY realm
+)
+
+SELECT R.realm, R.race, R.gender, R.total
+FROM male_max M, races R
+WHERE M.total = R.total
+	AND M.realm = R.realm
+UNION
+SELECT R.realm, R.race, R.gender, R.total
+FROM female_max F, races_i R
+WHERE F.total = R.total
+	AND F.realm = R.realm
+ORDER BY realm, gender, race
+
+--SELECT realm, gender
+--FROM races 
+--GROUP BY gender, realm
+--HAVING total = (SELECT MAX(total) FROM races)
+--ORDER BY realm, gender
+;

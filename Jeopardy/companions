@@ -1,0 +1,55 @@
+with 
+visits As (
+SELECT DISTINCT V.login, V.name, A.theme, A.realm, A.day
+FROM Actor A, Visit V
+WHERE V.login = A.login 
+	AND V.realm = A.realm 
+	AND V.day = A.day
+)
+,
+companions As (
+SELECT DISTINCT V1.login AS companion1, V1.name AS fname, V1.realm AS realm, V2.login AS companion2, V2.name AS lname
+FROM visits V1, visits V2
+WHERE V1.login < V2.login 
+	AND V1.name <> V2.name
+	AND V1.realm = V2.realm 
+	AND V1.theme = V2.theme 
+	AND V1.day = V2.day
+)
+
+SELECT * 
+FROM companions C
+
+WHERE NOT EXISTS(
+	(SELECT V.realm, V.theme, V.day
+	FROM visits V
+	WHERE V.login = C.companion1
+	AND V.realm = C.realm
+	AND V.name = C.fname)
+	
+	EXCEPT
+
+	(SELECT V.realm, V.theme, V.day
+	FROM visits V
+	WHERE V.login = C.companion2
+	AND V.realm = C.realm 
+	AND V.name = C.lname))
+
+	 AND NOT EXISTS(
+
+
+	(SELECT V.realm, V.theme, V.day
+	FROM visits V
+	WHERE V.login = C.companion2
+	AND V.realm = C.realm
+	AND V.name = C.lname)
+	
+	EXCEPT
+
+	(SELECT V.realm, V.theme, V.day
+	FROM visits V
+	WHERE V.login = C.companion1
+	AND V.realm = C.realm
+	AND V.name = C.fname))
+
+ORDER BY realm, companion1, fname, companion2, lname;

@@ -1,0 +1,13 @@
+with num_fail (theme, #fail) As
+(
+SELECT 	theme ,
+		count(case when succeeded IS NULL then 1 end) as #fail
+FROM Quest
+GROUP BY theme
+)
+
+SELECT theme
+FROM num_fail
+WHERE #fail = 0
+GROUP BY theme
+ORDER BY theme;

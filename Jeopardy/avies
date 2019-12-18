@@ -1,0 +1,4 @@
+SELECT P.login, P.name, A.name as avatar, A.race 
+FROM Player P, Avatar A 
+WHERE P.login = A.login
+ORDER BY login, name, avatar;

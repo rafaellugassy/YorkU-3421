@@ -1,0 +1,7 @@
+SELECT Cust.name as passenger, Cust.fuid, K.place, K.provider, C.nick as acct_nname, T.serv as service, date (T.when) as day, time(T.when) as time
+FROM Customer Cust, Tap T, Card C, Kiosk K
+WHERE T.kiosk# = K.kiosk#
+	and T.provider = K.provider
+	and T.card# = C.card#
+	and C.fuid = Cust.fuid
+ORDER BY passenger, Cust.fuid, T.when;

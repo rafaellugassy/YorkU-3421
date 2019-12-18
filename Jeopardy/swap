@@ -1,0 +1,12 @@
+with num_gen (login, #Male, #Female) As
+(
+SELECT 	login,
+		count(case when gender = 'M' then 1 end) as #Male, 
+		count(case when gender = 'F' then 1 end) as #Female
+FROM Avatar
+GROUP BY login
+)
+SELECT N.login, P.name, P.gender, N.#Male + N.#Female as #avatar 
+FROM num_gen as N, Player P
+WHERE P.login = N.login AND ((P.gender = 'F' AND N.#Male > 0) OR (P.gender = 'M' AND N.#Female > 0))
+ORDER BY N.login;

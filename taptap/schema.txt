@@ -1,0 +1,74 @@
+
+create table Customer (
+    fuid   char(8)  not null,
+    name  char(20),
+	birthdate date,
+	hukou char(6),
+    address  char(25),
+    constraint customer_pk
+        primary key (fuid)
+);
+
+create table Account (
+	fuid char(8),
+    nickname varchar(15) not null,
+    cc# char(16),
+	cardtype varchar (12),
+    constraint account_pk
+        primary key (nickname),
+	constraint account_customer_fk
+		foreign key (fuid) references Customer
+);
+
+create table Card (
+	nick varchar(15),
+    card#  char(8)  not null,
+	fuid char(20),
+    tier   varchar(10),
+    constraint card_pk
+        primary key (card#),
+    constraint card_cust_fk
+        foreign key (fuid) references Customer,
+    constraint card_account_fk
+        foreign key (nick) references Account
+);
+
+create table Kiosk (
+	kiosk# char(8) not null,
+    provider varchar(15) not null,
+	place varchar(15),
+    constraint kiosk_pk
+        primary key (kiosk#, provider)
+);
+
+create table Service (
+    serv varchar(10) not null,
+	constraint service_pk
+		primary key (serv)
+);
+
+create table Action (
+	kiosk# char(8) not null,
+	provider varchar(15) not null,
+	serv varchar(10) not null,
+	constraint action_pk
+		primary key (kiosk#, provider, serv),
+	constraint action_kiosk_fk
+		foreign key (kiosk#, provider) references Kiosk,
+	constraint action_service_fk
+		foreign key (serv) references Service
+);
+
+create table Tap (
+    when timestamp not null,
+	kiosk# char(8),
+	provider varchar(15),
+	serv varchar(10),
+	card# char(8),
+	constraint tap_pk
+		primary key (when),
+	constraint tap_kiosk_fk
+		foreign key (kiosk#, provider) references Kiosk,
+	constraint tap_action_fk
+		foreign key (kiosk#, provider, serv) references Action
+);

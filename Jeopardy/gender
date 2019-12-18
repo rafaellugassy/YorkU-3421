@@ -1,0 +1,3 @@
+SELECT 	count(case when gender = 'M' then 1 end) as #Male, 
+		count(case when gender = 'F' then 1 end) as #Female
+FROM Player;

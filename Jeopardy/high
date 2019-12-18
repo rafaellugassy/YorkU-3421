@@ -1,0 +1,30 @@
+with themes (theme, race, total) As
+(
+SELECT 	Q.theme, A.race, SUM(T.sql) as total
+FROM Avatar A, Loot L, Treasure T, Quest Q, Visit V
+WHERE 
+	V.login = A.login AND
+	L.login = V.login AND
+	V.day = L.day AND
+	V.realm = L.realm AND
+	T.treasure = L.treasure AND
+	Q.theme = L.theme AND 
+	Q.realm = L.realm AND
+	Q.day = L.day AND
+	A.name = V.name AND
+	Q.succeeded IS NOT NULL
+GROUP BY A.race, Q.theme
+)
+,
+max_race(theme, total) as 
+(
+SELECT theme, MAX(total) as total
+FROM themes
+GROUP BY theme
+)
+
+SELECT T.theme, T.race, T.total
+FROM themes T, max_race R
+WHERE T.total = R.total
+	AND T.theme = R.theme
+ORDER BY theme, race;
